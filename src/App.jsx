@@ -12,7 +12,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/organiser/dashboard" element={<FootballDashboard />} />
-        <Route path="/organiser/manage-player" element={<ManagePlayers />} />
+        {/* <Route path="/organiser/manage-player" element={<ManagePlayers />} /> */}
         <Route path="/organiser/create-match" element={<CreateMatch />} />
         <Route path="/organiser/create-team" element={<CreateTeam />} />
         <Route path="/auth" element={<AuthUI />} />

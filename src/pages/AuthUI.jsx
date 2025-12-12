@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import axios from "axios"
+import axios from "axios";
 import { Eye, EyeOff } from "lucide-react";
 // import FootballDashboard from "./Dashboard";
 
@@ -76,7 +76,7 @@ function SignupForm({ showPassword, setShowPassword }) {
     });
   };
 
-  const  handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     // console.log("Signup Data:", formData);
 
@@ -86,8 +86,19 @@ function SignupForm({ showPassword, setShowPassword }) {
       password: "",
     });
 
-    const res = await axios.post({formData})
-    console.log(res)
+    try {
+      console.log(import.meta.env);
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/sign-up`,
+        formData,
+        // { withCredentials: true }
+      );
+
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
@@ -145,13 +156,27 @@ function SigninForm({ showPassword, setShowPassword }) {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit =async (e) => {
     e.preventDefault();
     console.log("Login Data:", formData);
     setFormData({
       email: "",
       password: "",
     });
+
+      try {
+      console.log(import.meta.env);
+
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/auth/sign-in`,
+        formData,
+        // { withCredentials: true }
+      );
+
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
   };
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
