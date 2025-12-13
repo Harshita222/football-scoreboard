@@ -1,32 +1,39 @@
 import React, { useState, useEffect } from "react";
 import Card from "./Card";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 export function CreateMatch() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     team: "",
     opponent: "",
     teamScore: "",
     opponentScore: "",
   });
-
-  const[teams,setTeams] = useState([])
-
+  const [teams, setTeams] = useState([]);
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
-
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log("Match Created:", form);
-    setForm({
-      team: "",
-    opponent: "",
-    teamScore: "",
-    opponentScore: "",
-    })
+    try {
+      e.preventDefault();
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/organizer/match`,
+        form,
+        { withCredentials: true }
+      );
+      navigate("/organizer/dashboard");
+      setForm({
+        team: "",
+        opponent: "",
+        teamScore: "",
+        opponentScore: "",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+    console.log("Match Created:", res);
   };
-
   const fetchAllMatch = async () => {
     try {
       const res = await axios.get(
@@ -34,17 +41,15 @@ export function CreateMatch() {
         {},
         { withCredentials: true }
       );
-      setTeams(res.data.teams)
-      console.log(res);
+      // console.log(res);
+      setTeams(res.data.teams);
     } catch (error) {
       console.log(error);
     }
   };
-
   useEffect(() => {
     fetchAllMatch();
   }, []);
-
   return (
     <div className="min-h-screen flex justify-center items-center bg-gray-100 px-4">
       <Card title="Create New Match">
@@ -61,14 +66,13 @@ export function CreateMatch() {
               className="w-full border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
             >
               <option value="">Choose Team</option>
-              {teams.map((team) => (
-                <option key={team._id} value={team._id}>
-                  {team.name}
+              {teams.map((t, i) => (
+                <option key={i} value={t._id}>
+                  {t.name}
                 </option>
               ))}
             </select>
           </div>
-
           {/* OPPONENT */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-700">
@@ -82,15 +86,14 @@ export function CreateMatch() {
             >
               <option value="">Choose Opponent</option>
               {teams
-                .filter((team) => team._id !== form.team)
-                .map((team) => (
-                  <option key={team._id} value={team._id}>
-                    {team.name}
+                // .filter((t) => t !== form.team)
+                .map((t, i) => (
+                  <option key={i} value={t._id}>
+                    {t.name}
                   </option>
                 ))}
             </select>
           </div>
-
           {/* SCORES */}
           <div className="grid grid-cols-2 gap-6">
             <div className="space-y-2">
@@ -106,7 +109,6 @@ export function CreateMatch() {
                 placeholder="0"
               />
             </div>
-
             <div className="space-y-2">
               <label className="text-sm font-semibold text-gray-700">
                 Opponent Score
@@ -121,7 +123,6 @@ export function CreateMatch() {
               />
             </div>
           </div>
-
           {/* SUBMIT */}
           <button
             type="submit"

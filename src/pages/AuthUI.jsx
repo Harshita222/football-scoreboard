@@ -1,13 +1,18 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { Eye, EyeOff } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  signInFailure,
+  signInStart,
+  signInSuccess,
+} from "../redux/user/userSlice";
+import { useNavigate } from "react-router-dom";
 // import FootballDashboard from "./Dashboard";
-
 export default function AuthUI() {
   const [isSignup, setIsSignup] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
-
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
       <motion.div
@@ -40,7 +45,7 @@ export default function AuthUI() {
             <span>
               Already have an account?{" "}
               <button
-                className="text-indigo-600 font-medium"
+                className="text-indigo-600 font-medium cursor-pointer"
                 onClick={() => setIsSignup(false)}
               >
                 Sign in
@@ -63,37 +68,49 @@ export default function AuthUI() {
   );
 }
 function SignupForm({ showPassword, setShowPassword }) {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  // import { useSelector } from "react-redux";
+  const { currentUser } = useSelector((state) => state.user);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
   });
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    setFormData({
-      fullName: "",
-      email: "",
-      password: "",
-    });
-
+    dispatch(signInStart());
     try {
+      console.log(import.meta.env);
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/sign-up`,
         formData
+        // { withCredentials: true }
       );
-
+      dispatch(signInSuccess(res.data));
+      if (res?.data?.safeUser) {
+        if (res?.data?.safeUser?.role == "player") {
+          navigate("/player/dashboard");
+        } else if (res?.data?.safeUser?.role == "organizer") {
+          navigate("/organizer/dashboard");
+        }
+      }
       console.log(res);
     } catch (err) {
+      dispatch(signInFailure());
       console.log(err);
+    } finally {
+      setFormData({
+        fullName: "",
+        email: "",
+        password: "",
+      });
     }
   };
   return (
@@ -129,7 +146,7 @@ function SignupForm({ showPassword, setShowPassword }) {
       />
       <button
         type="submit"
-        className="w-full bg-indigo-600 text-white py-2 rounded-xl mt-2 shadow hover:bg-indigo-700 transition"
+        className="w-full bg-indigo-600 text-white py-2 rounded-xl mt-2 shadow hover:bg-indigo-700 transition cursor-pointer"
       >
         Sign Up
       </button>
@@ -140,36 +157,47 @@ function SignupForm({ showPassword, setShowPassword }) {
   );
 }
 function SigninForm({ showPassword, setShowPassword }) {
+  const { currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { loading } = useSelector((state) => state.user);
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
     });
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Login Data:", formData);
-    setFormData({
-      email: "",
-      password: "",
-    });
-
+    dispatch(signInStart());
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/sign-in`,
         formData
+        // { withCredentials: true }
       );
-
-      console.log(res);
+      dispatch(signInSuccess(res.data));
+      if (res?.data?.safeUser) {
+        if (res?.data?.safeUser?.role == "player") {
+          navigate("/player/dashboard");
+        } else if (res?.data?.safeUser?.role == "organizer") {
+          navigate("/organizer/dashboard");
+        }
+      }
+      // console.log(res);
     } catch (err) {
+      dispatch(signInFailure());
       console.log(err);
     }
+    setFormData({
+      email: "",
+      password: "",
+    });
   };
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
@@ -192,7 +220,8 @@ function SigninForm({ showPassword, setShowPassword }) {
       />
       <button
         type="submit"
-        className="w-full bg-indigo-600 text-white py-2 rounded-xl mt-2 shadow hover:bg-indigo-700 transition"
+        disabled={loading}
+        className="w-full bg-indigo-600 text-white py-2 rounded-xl mt-2 shadow hover:bg-indigo-700 transition cursor-pointer"
       >
         Sign In
       </button>
