@@ -78,7 +78,6 @@ function SignupForm({ showPassword, setShowPassword }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // console.log("Signup Data:", formData);
 
     setFormData({
       fullName: "",
@@ -87,12 +86,9 @@ function SignupForm({ showPassword, setShowPassword }) {
     });
 
     try {
-      console.log(import.meta.env);
-
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/sign-up`,
-        formData,
-        // { withCredentials: true }
+        formData
       );
 
       console.log(res);
@@ -156,7 +152,7 @@ function SigninForm({ showPassword, setShowPassword }) {
     });
   };
 
-  const handleSubmit =async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Login Data:", formData);
     setFormData({
@@ -164,13 +160,10 @@ function SigninForm({ showPassword, setShowPassword }) {
       password: "",
     });
 
-      try {
-      console.log(import.meta.env);
-
+    try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/sign-in`,
-        formData,
-        // { withCredentials: true }
+        formData
       );
 
       console.log(res);

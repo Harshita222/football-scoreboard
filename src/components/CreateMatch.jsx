@@ -10,7 +10,7 @@ export function CreateMatch() {
     opponentScore: "",
   });
 
-  const teams = ["Red Lions", "Blue Sharks", "Golden Wolves"];
+  const[teams,setTeams] = useState([])
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,6 +19,12 @@ export function CreateMatch() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Match Created:", form);
+    setForm({
+      team: "",
+    opponent: "",
+    teamScore: "",
+    opponentScore: "",
+    })
   };
 
   const fetchAllMatch = async () => {
@@ -28,6 +34,7 @@ export function CreateMatch() {
         {},
         { withCredentials: true }
       );
+      setTeams(res.data.teams)
       console.log(res);
     } catch (error) {
       console.log(error);
@@ -54,9 +61,9 @@ export function CreateMatch() {
               className="w-full border border-gray-300 p-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none"
             >
               <option value="">Choose Team</option>
-              {teams.map((t, i) => (
-                <option key={i} value={t}>
-                  {t}
+              {teams.map((team) => (
+                <option key={team._id} value={team._id}>
+                  {team.name}
                 </option>
               ))}
             </select>
@@ -75,10 +82,10 @@ export function CreateMatch() {
             >
               <option value="">Choose Opponent</option>
               {teams
-                .filter((t) => t !== form.team)
-                .map((t, i) => (
-                  <option key={i} value={t}>
-                    {t}
+                .filter((team) => team._id !== form.team)
+                .map((team) => (
+                  <option key={team._id} value={team._id}>
+                    {team.name}
                   </option>
                 ))}
             </select>
