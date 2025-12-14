@@ -171,10 +171,10 @@ export default function ScoreBoard() {
 
       <div className="space-y-6">
         {completedMatches.map((match) => {
-          const winner =
-            match.teamScore > match.opponentScore
-              ? match.team?.name
-              : match.opponentTeam?.name;
+        //   const winner =
+        //     match.teamScore > match.opponentScore
+        //       ? match.team?.name
+        //       : match.opponentTeam?.name;
 
           return (
             <div
@@ -204,7 +204,7 @@ export default function ScoreBoard() {
               <div className="mt-4 flex items-center justify-between">
                 <div className="flex items-center gap-2 text-yellow-400 text-sm">
                   <Trophy size={16} />
-                  Winner: {winner}
+                  Winner: {match.winner}
                 </div>
 
                 <button

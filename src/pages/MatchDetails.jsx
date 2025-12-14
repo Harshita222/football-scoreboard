@@ -114,10 +114,10 @@ export default function MatchDetails() {
                     key={player._id}
                     className="px-4 py-3 rounded-xl bg-black/50 border border-white/10 hover:bg-black/70 transition"
                   >
-                    <p className="font-semibold">{player.name}</p>
-                    <p className="text-xs text-slate-400">
+                    <p className="font-semibold">{player.fullName}</p>
+                    {/* <p className="text-xs text-slate-400">
                       {player.position || "Player"}
-                    </p>
+                    </p> */}
                   </li>
                 ))}
               </ul>

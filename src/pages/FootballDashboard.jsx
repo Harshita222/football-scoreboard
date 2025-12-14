@@ -97,9 +97,9 @@ export default function FootballDashboard() {
       {/* ================= HEADER ================= */}
       <header className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-4">
-          <button className="p-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition">
+          {/* <button className="p-2 rounded-xl bg-white/10 border border-white/10 hover:bg-white/20 transition">
             <Menu size={18} />
-          </button>
+          </button> */}
           <div>
             <h1 className="text-2xl font-bold tracking-tight">
               Arena Football Dashboard
