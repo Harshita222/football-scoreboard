@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import { Eye, EyeOff } from "lucide-react";
@@ -9,26 +9,36 @@ import {
   signInSuccess,
 } from "../redux/user/userSlice";
 import { useNavigate } from "react-router-dom";
-// import FootballDashboard from "./Dashboard";
+
 export default function AuthUI() {
   const [isSignup, setIsSignup] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-100 p-4">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-black">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white shadow-xl rounded-2xl p-6"
+        transition={{ duration: 0.4 }}
+        className="
+          w-full max-w-md
+          rounded-3xl
+          bg-slate-900/70 backdrop-blur-xl
+          border border-white/10
+          shadow-2xl shadow-black/50
+          p-8
+        "
       >
+        {/* ===== HEADER ===== */}
         <div className="flex flex-col items-center mb-6">
-          {/* <FootballDashboard size={38} className="text-indigo-600" /> */}
-          <h1 className="text-2xl font-bold mt-2">
-            Velocity Football Scoreboard
+          <h1 className="text-2xl font-bold text-white tracking-wide">
+            Velocity Football
           </h1>
-          <p className="text-slate-500 text-sm">
-            {isSignup ? "Create your player account" : "Welcome back!"}
+          <p className="text-slate-400 text-sm mt-1">
+            {isSignup ? "Create your player account" : "Welcome back"}
           </p>
         </div>
+
         {isSignup ? (
           <SignupForm
             showPassword={showPassword}
@@ -40,213 +50,231 @@ export default function AuthUI() {
             setShowPassword={setShowPassword}
           />
         )}
-        <div className="text-center mt-4 text-sm">
+
+        {/* ===== SWITCH ===== */}
+        <div className="text-center mt-4 text-sm text-slate-400">
           {isSignup ? (
-            <span>
+            <>
               Already have an account?{" "}
               <button
-                className="text-indigo-600 font-medium cursor-pointer"
+                className="text-cyan-400 hover:text-cyan-300 font-medium transition"
                 onClick={() => setIsSignup(false)}
               >
                 Sign in
               </button>
-            </span>
+            </>
           ) : (
-            <span>
-              Don't have an account?{" "}
+            <>
+              Don’t have an account?{" "}
               <button
-                className="text-indigo-600 font-medium"
+                className="text-cyan-400 hover:text-cyan-300 font-medium transition"
                 onClick={() => setIsSignup(true)}
               >
                 Sign up
               </button>
-            </span>
+            </>
           )}
         </div>
       </motion.div>
     </div>
   );
 }
+
+/* ===================== SIGN UP ===================== */
+
 function SignupForm({ showPassword, setShowPassword }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  // import { useSelector } from "react-redux";
-  const { currentUser } = useSelector((state) => state.user);
+
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     password: "",
   });
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     dispatch(signInStart());
+
     try {
-      console.log(import.meta.env);
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/sign-up`,
         formData
-        // { withCredentials: true }
       );
+
       dispatch(signInSuccess(res.data));
-      if (res?.data?.safeUser) {
-        if (res?.data?.safeUser?.role == "player") {
-          navigate("/player/dashboard");
-        } else if (res?.data?.safeUser?.role == "organizer") {
-          navigate("/organizer/dashboard");
-        }
-      }
-      console.log(res);
+        navigate("/");
     } catch (err) {
       dispatch(signInFailure());
       console.log(err);
     } finally {
-      setFormData({
-        fullName: "",
-        email: "",
-        password: "",
-      });
+      setFormData({ fullName: "", email: "", password: "" });
     }
   };
+
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
-      <div>
-        <label className="text-sm font-medium">Full Name</label>
-        <input
-          type="text"
-          name="fullName"
-          placeholder="Enter your Full Name"
-          value={formData.fullName}
-          onChange={handleChange}
-          className="mt-1 w-full p-2 border rounded-lg border-slate-300"
-        />
-      </div>
-      <div>
-        <label className="text-sm font-medium">Email</label>
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter your Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="mt-1 w-full p-2 border rounded-lg border-slate-300"
-        />
-      </div>
+      <Input
+        label="Full Name"
+        name="fullName"
+        placeholder="Enter your full name"
+        value={formData.fullName}
+        onChange={handleChange}
+      />
+
+      <Input
+        label="Email"
+        type="email"
+        name="email"
+        placeholder="Enter your email"
+        value={formData.email}
+        onChange={handleChange}
+      />
+
       <PasswordInput
         showPassword={showPassword}
         setShowPassword={setShowPassword}
-        name="password"
         value={formData.password}
         onChange={handleChange}
       />
-      <button
-        type="submit"
-        className="w-full bg-indigo-600 text-white py-2 rounded-xl mt-2 shadow hover:bg-indigo-700 transition cursor-pointer"
-      >
-        Sign Up
-      </button>
-      <p className="text-xs text-slate-500 text-center mt-2">
-        Role is <strong>Player</strong> by default.
+
+      <PrimaryButton text="Sign Up" />
+
+      <p className="text-xs text-slate-400 text-center">
+        Role is <strong className="text-white">Player</strong> by default
       </p>
     </form>
   );
 }
+
+/* ===================== SIGN IN ===================== */
+
 function SigninForm({ showPassword, setShowPassword }) {
-  const { currentUser } = useSelector((state) => state.user);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loading } = useSelector((state) => state.user);
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
-  const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-  };
+
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login Data:", formData);
     dispatch(signInStart());
+
     try {
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/auth/sign-in`,
         formData
-        // { withCredentials: true }
       );
       dispatch(signInSuccess(res.data));
-      if (res?.data?.safeUser) {
-        if (res?.data?.safeUser?.role == "player") {
-          navigate("/player/dashboard");
-        } else if (res?.data?.safeUser?.role == "organizer") {
-          navigate("/organizer/dashboard");
-        }
-      }
-      // console.log(res);
+        navigate("/");
     } catch (err) {
       dispatch(signInFailure());
       console.log(err);
     }
-    setFormData({
-      email: "",
-      password: "",
-    });
+
+    setFormData({ email: "", password: "" });
   };
+
   return (
     <form className="space-y-4" onSubmit={handleSubmit}>
-      <div>
-        <label className="text-sm font-medium">Email</label>
-        <input
-          type="email"
-          name="email"
-          placeholder="Enter your Email"
-          value={formData.email}
-          onChange={handleChange}
-          className="mt-1 w-full p-2 border rounded-lg border-slate-300"
-        />
-      </div>
+      <Input
+        label="Email"
+        type="email"
+        name="email"
+        placeholder="Enter your email"
+        value={formData.email}
+        onChange={handleChange}
+      />
+
       <PasswordInput
         showPassword={showPassword}
         setShowPassword={setShowPassword}
         value={formData.password}
         onChange={handleChange}
       />
-      <button
-        type="submit"
-        disabled={loading}
-        className="w-full bg-indigo-600 text-white py-2 rounded-xl mt-2 shadow hover:bg-indigo-700 transition cursor-pointer"
-      >
-        Sign In
-      </button>
+
+      <PrimaryButton text="Sign In" disabled={loading} />
     </form>
   );
 }
+
+/* ===================== REUSABLE COMPONENTS ===================== */
+
+function Input({ label, ...props }) {
+  return (
+    <div>
+      <label className="text-sm text-slate-300 font-medium">{label}</label>
+      <input
+        {...props}
+        className="
+          mt-1 w-full px-4 py-2
+          rounded-xl
+          bg-slate-800/60
+          border border-white/10
+          text-white placeholder-slate-400
+          focus:outline-none focus:ring-2 focus:ring-cyan-500/40
+          transition
+        "
+      />
+    </div>
+  );
+}
+
 function PasswordInput({ showPassword, setShowPassword, value, onChange }) {
   return (
     <div className="relative">
-      <label className="text-sm font-medium">Password</label>
+      <label className="text-sm text-slate-300 font-medium">Password</label>
       <input
         type={showPassword ? "text" : "password"}
-        placeholder="••••••••"
         name="password"
         value={value}
         onChange={onChange}
-        className="mt-1 w-full p-2 pr-10 border rounded-lg border-slate-300"
+        placeholder="••••••••"
+        className="
+          mt-1 w-full px-4 py-2 pr-10
+          rounded-xl
+          bg-slate-800/60
+          border border-white/10
+          text-white placeholder-slate-400
+          focus:outline-none focus:ring-2 focus:ring-cyan-500/40
+        "
       />
       <button
         type="button"
-        className="absolute right-3 top-9 text-slate-500"
         onClick={() => setShowPassword(!showPassword)}
+        className="absolute right-3 top-9 text-slate-400 hover:text-cyan-400 transition"
       >
         {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
       </button>
     </div>
+  );
+}
+
+function PrimaryButton({ text, disabled }) {
+  return (
+    <button
+      type="submit"
+      disabled={disabled}
+      className="
+        w-full mt-3 py-2 rounded-xl
+        bg-gradient-to-r from-cyan-500 to-indigo-500
+        text-white font-semibold
+        shadow-lg shadow-cyan-500/20
+        hover:scale-[1.03]
+        transition-all duration-200
+        disabled:opacity-50 disabled:cursor-not-allowed
+      "
+    >
+      {text}
+    </button>
   );
 }
